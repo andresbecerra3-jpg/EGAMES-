@@ -700,3 +700,105 @@ Responde estrictamente en formato JSON válido:
                                     <i class="fa-solid fa-check-double"></i>
                                     <span>Completar Práctica y Habilitar Postulación</span>
                                 </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function sendTeamIntro() {
+            const input = document.getElementById('team-input');
+            const val = input.value.trim();
+            if (!val) return;
+
+            const chat = document.getElementById('team-chat');
+            const userMsg = document.createElement('div');
+            userMsg.className = "bg-indigo-600/30 p-2.5 rounded-lg border border-indigo-500/40 text-right";
+            userMsg.innerHTML = `<span class="font-bold text-indigo-300">Tú:</span> "${val}"`;
+            chat.appendChild(userMsg);
+
+            setTimeout(() => {
+                const reply = document.createElement('div');
+                reply.className = "bg-slate-800 p-2.5 rounded-lg border border-slate-700";
+                reply.innerHTML = `<span class="font-bold text-emerald-400">Team Leader Sarah:</span> "Awesome introduction! Welcome to our workspace!"`;
+                chat.appendChild(reply);
+                chat.scrollTop = chat.scrollHeight;
+            }, 800);
+
+            input.value = '';
+        }
+
+        function completeVocabPractice() {
+            gameState.hasPracticedVocab = true;
+            showModal("¡Repaso Completado! 📚", "Has practicado el vocabulario clave. Se ha habilitado la opción 'Buscar Nuevo Cargo' en la parte superior para agendar tu siguiente entrevista de ascenso.", 'success');
+            renderScene();
+        }
+
+        function triggerNextInterviewProcess() {
+            if (!gameState.hasPracticedVocab) {
+                showModal("Práctica Requerida", "Debes repasar el vocabulario básico en el panel de trabajo antes de postular a una vacante superior.", 'error');
+                return;
+            }
+            gameState.jobLevel++;
+            gameState.scene = 'scene2_apartment';
+            renderScene();
+        }
+
+        // --- GAME OVER SCENE ---
+        function renderGameOverHTML() {
+            return `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-6 bg-gradient-to-b from-slate-900 via-rose-950/40 to-slate-900">
+                    <div class="w-24 h-24 bg-rose-500/20 border border-rose-500/40 rounded-3xl flex items-center justify-center text-4xl text-rose-400 shadow-xl">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                    </div>
+                    <div class="space-y-2 max-w-lg">
+                        <h2 class="text-3xl font-extrabold text-white">¡Fin del Juego! (Game Over)</h2>
+                        <p class="text-slate-300 text-sm leading-relaxed">
+                            Has permanecido 3 meses consecutivos sin lograr ascender ni conseguir una mejor posición laboral. Las oportunidades en la metrópoli se agotaron por esta ocasión.
+                        </p>
+                    </div>
+                    <button onclick="restartGame()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-8 py-3 rounded-xl shadow-lg transition">
+                        <i class="fa-solid fa-rotate-right mr-2"></i> Volver a Intentar
+                    </button>
+                </div>
+            `;
+        }
+
+        // --- VICTORY SCENE ---
+        function renderVictoryHTML() {
+            return `
+                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-6 bg-gradient-to-b from-slate-900 via-emerald-950/40 to-slate-900">
+                    <div class="w-24 h-24 bg-emerald-500/20 border border-emerald-500/40 rounded-3xl flex items-center justify-center text-4xl text-emerald-400 shadow-xl animate-bounce">
+                        <i class="fa-solid fa-trophy"></i>
+                    </div>
+                    <div class="space-y-2 max-w-lg">
+                        <h2 class="text-3xl font-extrabold text-white">¡Victoria Total! 🏆</h2>
+                        <p class="text-slate-300 text-sm leading-relaxed">
+                            ¡Un éxito absoluto! Has superado las 4 entrevistas alcanzando la proficiencia B2 en inglés. Ahora eres <strong>Senior Operations Manager</strong> en la gran ciudad.
+                        </p>
+                    </div>
+                    <button onclick="restartGame()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-8 py-3 rounded-xl shadow-lg transition">
+                        <i class="fa-solid fa-rotate-right mr-2"></i> Jugar de Nuevo
+                    </button>
+                </div>
+            `;
+        }
+
+        function restartGame() {
+            gameState.scene = 'scene1_bus';
+            gameState.jobLevel = 1;
+            gameState.monthsInCurrentJob = 0;
+            gameState.hasPracticedVocab = false;
+            renderScene();
+        }
+
+        // Fix for GitHub Pages execution: trigger render immediately when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', renderScene);
+        } else {
+            renderScene();
+        }
+    </script>
+</body>
+</html>
