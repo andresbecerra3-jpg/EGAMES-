@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Career Quest - Bogotá / New City</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .fade-in { animation: fadeIn 0.4s ease-in-out forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Continuous Animations for Scenes */
+        @keyframes busMove {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-3px); }
+            100% { transform: translateY(0px); }
+        }
+        .animate-bus { animation: busMove 1.8s infinite ease-in-out; }
+
+        @keyframes cityScroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .animate-city { animation: cityScroll 12s linear infinite; }
+
+        @keyframes tvGlow {
+            0%, 100% { opacity: 0.3; filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.4)); }
+            50% { opacity: 0.7; filter: drop-shadow(0 0 25px rgba(147, 51, 234, 0.6)); }
+        }
+        .animate-tv-glow { animation: tvGlow 3s infinite ease-in-out; }
+
+        @keyframes phoneVibrate {
+            0%, 100% { transform: rotate(0deg); }
+            10%, 30%, 50% { transform: rotate(-4deg) scale(1.03); }
+            20%, 40% { transform: rotate(4deg) scale(1.03); }
+            60% { transform: rotate(0deg); }
+        }
+        .animate-phone { animation: phoneVibrate 2.5s infinite ease-in-out; }
+
+        @keyframes floatIdle {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+        .animate-float { animation: floatIdle 3s infinite ease-in-out; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 h-full flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
+
+    <!-- Top HUD / Status Bar -->
+    <header class="bg-slate-800 border-b border-slate-700 px-6 py-3 flex flex-wrap justify-between items-center shadow-md">
+        <div class="flex items-center space-x-3">
+            <div class="bg-indigo-600 p-2 rounded-xl text-white font-bold text-lg shadow-inner">
+                <i class="fa-solid fa-briefcase"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-base text-white tracking-wide">English Career Quest</h1>
+                <p class="text-xs text-slate-400">Universidad Distrital - EdTech Project</p>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-6 mt-2 sm:mt-0">
+            <div class="bg-slate-700/60 px-3 py-1.5 rounded-lg border border-slate-600 flex items-center space-x-2">
+                <i class="fa-solid fa-user-tie text-indigo-400"></i>
+                <span class="text-xs text-slate-300">Cargo Actual: <strong id="hud-job" class="text-white">Desempleado (Buscando A1)</strong></span>
+            </div>
+            <div class="bg-slate-700/60 px-3 py-1.5 rounded-lg border border-slate-600 flex items-center space-x-2">
+                <i class="fa-solid fa-calendar-days text-amber-400"></i>
+                <span class="text-xs text-slate-300">Tiempo en nivel: <strong id="hud-months" class="text-white">Mes 0 / 3</strong></span>
+            </div>
+            <div class="bg-slate-700/60 px-3 py-1.5 rounded-lg border border-slate-600 flex items-center space-x-2">
+                <i class="fa-solid fa-graduation-cap text-emerald-400"></i>
+                <span class="text-xs text-slate-300">Nivel MCER: <strong id="hud-level" class="text-white">A1</strong></span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Game Container -->
+    <main class="flex-1 overflow-y-auto p-4 sm:p-6 flex items-center justify-center">
+        <div id="game-container" class="w-full max-w-5xl bg-slate-800/90 backdrop-blur border border-slate-700 rounded-2xl shadow-2xl overflow-hidden flex flex-col min-h-[560px] fade-in">
+            <!-- Dynamic Content Injected via JavaScript -->
+        </div>
+    </main>
+
+    <!-- Footer / Credits -->
+    <footer class="bg-slate-900 border-t border-slate-800 py-3 px-6 text-center text-xs text-slate-500">
+        Simulador Interactivo de Entrevistas Laborales en Inglés • Diseñado para Educación en Tecnología
+    </footer>
+
+    <!-- Custom Modal / Message Box -->
+    <div id="custom-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl fade-in">
+            <div class="flex items-center space-x-3 mb-4">
+                <div id="modal-icon" class="w-10 h-10 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-info"></i>
+                </div>
+                <h3 id="modal-title" class="text-lg font-bold text-white">Notificación</h3>
+            </div>
+            <p id="modal-message" class="text-slate-300 text-sm leading-relaxed mb-6">Mensaje del sistema...</p>
+            <div class="flex justify-end">
+                <button onclick="closeModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-5 py-2 rounded-xl transition shadow-lg text-sm">
+                    Entendido
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Logic Script -->
+    <script>
+        // Game State
+        const gameState = {
+            scene: 'scene1_bus', // 'scene1_bus', 'scene2_apartment', 'scene3_interview', 'scene4_workplace', 'game_over', 'victory'
+            jobLevel: 1, // 1: A1, 2: A2, 3: B1, 4: B2
+            monthsInCurrentJob: 0,
+            interviewHistory: [],
+            interviewTurns: 0,
+            isEvaluating: false,
+            hasPracticedVocab: false
+        };
+
+        const jobLevelsConfig = {
+            1: { title: 'Junior Assistant (A1)', level: 'A1', role: 'Recepcionista / Asistente Junior' },
+            2: { title: 'Customer Support Representative (A2)', level: 'A2', role: 'Representante de Atención al Cliente' },
+            3: { title: 'Project Coordinator (B1)', level: 'B1', role: 'Coordinador de Proyectos Junior' },
+            4: { title: 'Senior Operations Manager (B2)', level: 'B2', role: 'Gerente de Operaciones Senior' }
+        };
+
+        // Fallback local evaluator for static web hosting or API limitations
+        function evaluateLocalTurn(userText, turnCount, level) {
+            const cleanText = userText.trim().toLowerCase();
+            const wordCount = cleanText.split(/\s+/).filter(Boolean).length;
+            
+            // Check for basic English indicators
+            const containsEnglishWords = /\b(i|my|is|am|are|work|name|like|hello|yes|no|can|have|experience|because|want|job|help|day|days|full|time|part|shift|good|morning|afternoon|flexibility|schedule|team|customer|project|manager|lead|skills)\b/i.test(cleanText);
+
+            if (!containsEnglishWords || wordCount < 3) {
+                return {
+                    reply: "I'm having trouble understanding your answer in English. Could you please answer in English using complete sentences?",
+                    passed: false,
+                    interviewEnded: false,
+                    feedback: "Respuesta demasiado corta o en español. Para este nivel necesitas responder en inglés estructurando oraciones simples completas (Sujeto + Verbo + Complemento)."
+                };
+            }
+
+            if (turnCount === 1) {
+                return {
+                    reply: "Great! Thank you for that introduction. Now, why are you interested in this position and what days are you available to work?",
+                    passed: true,
+                    interviewEnded: false,
+                    feedback: "¡Excelente inicio! Has demostrado comprensión de la pregunta personal básica y expresado ideas en inglés correctamente."
+                };
+            } else if (turnCount === 2) {
+                return {
+                    reply: "Understood. Can you tell me about a time you had to deal with a challenge or how you manage your daily work responsibilities?",
+                    passed: true,
+                    interviewEnded: false,
+                    feedback: "Muy bien. Expresaste correctamente tu disponibilidad y motivación laboral usando vocabulario acorde al nivel."
+                };
+            } else {
+                return {
+                    reply: "Thank you very much for your responses! That concludes our interview session today. We will let you know our decision right away.",
+                    passed: true,
+                    interviewEnded: true,
+                    feedback: "¡Excelente entrevista! Demostraste un manejo léxico, gramatical y de comprensión adecuado para las exigencias de este nivel MCER."
+                };
+            }
+        }
+
+        function updateHUD() {
+            const config = jobLevelsConfig[gameState.jobLevel] || jobLevelsConfig[4];
+            document.getElementById('hud-job').innerText = config.title;
+            document.getElementById('hud-months').innerText = `Mes ${gameState.monthsInCurrentJob} / 3`;
+            document.getElementById('hud-level').innerText = config.level;
+        }
+
+        function showModal(title, message, type = 'info') {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-message').innerText = message;
+            const iconEl = document.getElementById('modal-icon');
+            if (type === 'success') {
+                iconEl.className = 'w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl';
+                iconEl.innerHTML = '<i class="fa-solid fa-check"></i>';
+            } else if (type === 'error') {
+                iconEl.className = 'w-10 h-10 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center text-xl';
+                iconEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+            } else {
+                iconEl.className = 'w-10 h-10 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xl';
+                iconEl.innerHTML = '<i class="fa-solid fa-info"></i>';
+            }
+            document.getElementById('custom-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('custom-modal').classList.add('hidden');
+        }
+
+        function renderScene() {
+            updateHUD();
+            const container = document.getElementById('game-container');
+            container.innerHTML = '';
+
+            if (gameState.scene === 'scene1_bus') {
+                container.innerHTML = renderScene1HTML();
+            } else if (gameState.scene === 'scene2_apartment') {
+                container.innerHTML = renderScene2HTML();
+            } else if (gameState.scene === 'scene3_interview') {
+                container.innerHTML = renderScene3HTML();
+                initInterviewChat();
+            } else if (gameState.scene === 'scene4_workplace') {
+                container.innerHTML = renderScene4HTML();
+            } else if (gameState.scene === 'game_over') {
+                container.innerHTML = renderGameOverHTML();
+            } else if (gameState.scene === 'victory') {
+                container.innerHTML = renderVictoryHTML();
+            }
+        }
+
+        // --- SCENE 1: BUS & ARRIVAL ---
+        function renderScene1HTML() {
+            return `
+                <div class="relative flex-1 flex flex-col lg:flex-row bg-slate-900 rounded-2xl overflow-hidden border border-slate-700">
+                    <div class="absolute top-4 right-4 z-10 bg-indigo-500/20 backdrop-blur border border-indigo-500/40 text-indigo-300 text-xs px-3 py-1 rounded-full font-medium">
+                        Escena 1 de 4 • Llegada a la Ciudad
+                    </div>
+
+                    <div class="w-full lg:w-1/2 bg-slate-950 relative overflow-hidden flex items-center justify-center p-4 min-h-[260px] border-b lg:border-b-0 lg:border-r border-slate-800">
+                        <div class="absolute inset-0 flex items-end opacity-30 animate-city" style="width: 200%;">
+                            <svg class="w-full h-48 text-indigo-400" fill="currentColor" viewBox="0 0 1200 300" preserveAspectRatio="none">
+                                <path d="M0,300 L0,150 L30,150 L30,300 L50,300 L50,100 L90,100 L90,300 L120,300 L120,180 L160,180 L160,300 L200,300 L200,80 L250,80 L250,300 L300,300 L300,140 L350,140 L350,300 L400,300 L400,60 L460,60 L460,300 L520,300 L520,170 L570,170 L570,300 L600,300 L600,150 L630,150 L630,300 L650,300 L650,100 L690,100 L690,300 L720,300 L720,180 L760,180 L760,300 L800,300 L800,80 L850,80 L850,300 L900,300 L900,140 L950,140 L950,300 L1000,300 L1000,60 L1060,60 L1060,300 L1120,300 L1120,170 L1170,170 L1170,300 L1200,300 Z"></path>
+                            </svg>
+                        </div>
+
+                        <div class="relative z-10 animate-bus flex flex-col items-center">
+                            <svg class="w-72 h-44" viewBox="0 0 320 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="20" y="30" width="280" height="130" rx="20" fill="#312E81" stroke="#6366F1" stroke-width="4"/>
+                                <rect x="40" y="50" width="60" height="50" rx="8" fill="#1E1B4B" stroke="#818CF8" stroke-width="2"/>
+                                <rect x="110" y="50" width="60" height="50" rx="8" fill="#1E1B4B" stroke="#818CF8" stroke-width="2"/>
+                                <rect x="180" y="50" width="60" height="50" rx="8" fill="#1E1B4B" stroke="#818CF8" stroke-width="2"/>
+                                <circle cx="140" cy="70" r="12" fill="#FCA5A5"/>
+                                <rect x="128" y="82" width="24" height="18" rx="6" fill="#38BDF8"/>
+                                <circle cx="143" cy="68" r="2" fill="#000"/>
+                                <circle cx="35" cy="130" r="8" fill="#FBBF24"/>
+                                <rect x="260" y="125" width="20" height="10" rx="3" fill="#EF4444"/>
+                                <circle cx="80" cy="160" r="22" fill="#1E293B" stroke="#94A3B8" stroke-width="6"/>
+                                <circle cx="240" cy="160" r="22" fill="#1E293B" stroke="#94A3B8" stroke-width="6"/>
+                            </svg>
+                            <div class="w-80 h-1.5 bg-indigo-500/50 rounded-full mt-1"></div>
+                        </div>
+                    </div>
+
+                    <div class="w-full lg:w-1/2 p-6 sm:p-8 flex flex-col justify-between space-y-6">
+                        <div class="space-y-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="p-2.5 bg-indigo-600/30 border border-indigo-500/40 rounded-xl text-indigo-400">
+                                    <i class="fa-solid fa-bus text-xl"></i>
+                                </div>
+                                <h2 class="text-xl font-bold text-white tracking-tight">Camino a la Metrópoli</h2>
+                            </div>
+
+                            <p class="text-slate-300 text-sm leading-relaxed">
+                                Te encuentras viajando en el autobús intermunicipal, observando por la ventana cómo los edificios imponentes y las luces brillantes reemplazan el paisaje tranquilo al que estabas acostumbrado.
+                            </p>
+                            <p class="text-slate-300 text-sm leading-relaxed">
+                                Aunque la enormidad de la ciudad te impresiona, tu determinación es mayor: vienes con la meta de perfeccionar tu inglés y conseguir un empleo profesional para superarte.
+                            </p>
+                            <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700 text-xs text-indigo-300 flex items-start space-x-3">
+                                <i class="fa-solid fa-location-dot text-indigo-400 text-base mt-0.5"></i>
+                                <span>El autobús se detiene en la terminal. Tomas tus maletas y te diriges al apartamento de tu amigo, quien te hospedará mientras realizas tus búsquedas laborales.</span>
+                            </div>
+                        </div>
+
+                        <div class="pt-2">
+                            <button onclick="goToScene2()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3.5 px-6 rounded-xl shadow-lg transition flex items-center justify-center space-x-3 group">
+                                <span>Llegar al apartamento del amigo</span>
+                                <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function goToScene2() {
+            gameState.scene = 'scene2_apartment';
+            renderScene();
+        }
+
+        // --- SCENE 2: APARTMENT & TV NOTIFICATION ---
+        function renderScene2HTML() {
+            const currentCfg = jobLevelsConfig[gameState.jobLevel];
+            return `
+                <div class="relative flex-1 flex flex-col lg:flex-row bg-slate-900 rounded-2xl overflow-hidden border border-slate-700">
+                    <div class="absolute top-4 right-4 z-10 bg-indigo-500/20 backdrop-blur border border-indigo-500/40 text-indigo-300 text-xs px-3 py-1 rounded-full font-medium">
+                        Escena 2 • Sala de Estar (${currentCfg.level})
+                    </div>
+
+                    <div class="w-full lg:w-1/2 bg-slate-950 relative overflow-hidden flex items-center justify-center p-6 min-h-[280px] border-b lg:border-b-0 lg:border-r border-slate-800">
+                        <div class="relative z-10 flex flex-col items-center w-full max-w-xs">
+                            <svg class="w-full h-52" viewBox="0 0 300 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <polygon points="20,20 100,60 100,160 20,180" fill="#3B82F6" class="animate-tv-glow" />
+                                <rect x="10" y="40" width="15" height="100" rx="3" fill="#0F172A" stroke="#475569" stroke-width="2"/>
+                                <rect x="120" y="110" width="150" height="50" rx="12" fill="#1E293B" stroke="#334155" stroke-width="3"/>
+                                <rect x="110" y="100" width="20" height="60" rx="8" fill="#334155"/>
+                                <rect x="260" y="100" width="20" height="60" rx="8" fill="#334155"/>
+                                <circle cx="180" cy="80" r="14" fill="#FCA5A5"/>
+                                <path d="M165,110 Q180,95 195,110 L195,135 L165,135 Z" fill="#6366F1"/>
+                                <g class="animate-phone">
+                                    <rect x="195" y="105" width="16" height="26" rx="3" fill="#0F172A" stroke="#38BDF8" stroke-width="2"/>
+                                    <rect x="197" y="107" width="12" height="22" rx="1" fill="#38BDF8"/>
+                                </g>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="w-full lg:w-1/2 p-6 sm:p-8 flex flex-col justify-between space-y-6">
+                        <div class="space-y-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="p-2.5 bg-amber-500/20 border border-amber-500/40 rounded-xl text-amber-400">
+                                    <i class="fa-solid fa-mobile-screen-button text-xl"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-xl font-bold text-white tracking-tight">Notificación de Empleo</h2>
+                                    <p class="text-xs text-slate-400">Nivel de vacante solicitada: <strong class="text-indigo-400">${currentCfg.level}</strong></p>
+                                </div>
+                            </div>
+
+                            <p class="text-slate-300 text-sm leading-relaxed">
+                                Te encuentras en la sala de estar descansando frente al televisor cuando de repente tu teléfono celular suena con una vibración.
+                            </p>
+
+                            <div class="bg-slate-950 border border-indigo-500/50 rounded-2xl p-4 shadow-xl relative overflow-hidden space-y-2">
+                                <div class="absolute top-0 left-0 w-1.5 h-full bg-indigo-500"></div>
+                                <div class="flex items-center justify-between text-xs text-slate-400 border-b border-slate-800 pb-1.5">
+                                    <span class="font-semibold text-indigo-400 flex items-center space-x-1.5">
+                                        <i class="fa-solid fa-comment-sms"></i> <span>SMS - Recruiter</span>
+                                    </span>
+                                    <span>Ahora</span>
+                                </div>
+                                <p class="text-white text-sm font-medium leading-relaxed">
+                                    "Hello! We reviewed your application for the <span class="text-indigo-300 font-bold">${currentCfg.title}</span> position. We'd like to invite you to an interview tomorrow. Do you accept?"
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row gap-3 pt-2">
+                            <button onclick="declineInterview()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 font-medium py-3 px-4 rounded-xl transition text-sm flex items-center justify-center space-x-2">
+                                <i class="fa-solid fa-xmark text-rose-400"></i>
+                                <span>Rechazar (Seguir viendo TV)</span>
+                            </button>
+                            <button onclick="acceptInterview()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 px-4 rounded-xl shadow-lg transition text-sm flex items-center justify-center space-x-2">
+                                <i class="fa-solid fa-check"></i>
+                                <span>Aceptar Entrevista</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function declineInterview() {
+            gameState.monthsInCurrentJob++;
+            if (gameState.monthsInCurrentJob >= 3) {
+                gameState.scene = 'game_over';
+                renderScene();
+                return;
+            }
+            showModal("Oferta Rechazada", `Decidiste no asistir a esta cita y te quedaste viendo TV. Pasa 1 mes más en la ciudad. Meses acumulados en este cargo: ${gameState.monthsInCurrentJob}/3. ¡Si llegas a 3 meses perderás!`, 'error');
+            renderScene();
+        }
+
+        function acceptInterview() {
+            gameState.scene = 'scene3_interview';
+            gameState.interviewTurns = 0;
+            gameState.interviewHistory = [];
+            renderScene();
+        }
+
+        // --- SCENE 3: INTERVIEW ROLEPLAY ---
+        function renderScene3HTML() {
+            const currentCfg = jobLevelsConfig[gameState.jobLevel];
+            return `
+                <div class="flex-1 flex flex-col lg:flex-row bg-slate-900 rounded-2xl overflow-hidden border border-slate-700 h-full">
+                    <div class="w-full lg:w-1/3 bg-slate-950 p-4 border-b lg:border-b-0 lg:border-r border-slate-800 flex flex-col items-center justify-center relative">
+                        <div class="animate-float flex flex-col items-center">
+                            <svg class="w-40 h-40" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="80" cy="80" r="75" fill="#1E293B" stroke="#475569" stroke-width="4"/>
+                                <path d="M30,150 C30,110 50,100 80,100 C110,100 130,110 130,150 Z" fill="#1E1B4B"/>
+                                <path d="M65,100 L80,125 L95,100 Z" fill="#FFFFFF"/>
+                                <path d="M77,100 L80,140 L83,100 Z" fill="#EF4444"/>
+                                <circle cx="80" cy="65" r="28" fill="#FCA5A5"/>
+                                <path d="M52,60 C52,40 65,35 80,35 C95,35 108,40 108,60 C108,45 95,40 80,40 C65,40 52,45 52,60 Z" fill="#475569"/>
+                                <rect x="60" y="58" width="16" height="10" rx="2" fill="none" stroke="#000" stroke-width="2"/>
+                                <rect x="84" y="58" width="16" height="10" rx="2" fill="none" stroke="#000" stroke-width="2"/>
+                                <line x1="76" y1="63" x2="84" y2="63" stroke="#000" stroke-width="2"/>
+                            </svg>
+                            <div class="text-center mt-3">
+                                <h3 class="font-bold text-white text-base">Hiring Manager</h3>
+                                <p class="text-xs text-indigo-400">Entrevista MCER <span class="uppercase font-bold">${currentCfg.level}</span></p>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-center text-xs">
+                            <span class="text-slate-400">Cargo Postulado:</span>
+                            <p class="text-white font-bold">${currentCfg.title}</p>
+                        </div>
+                    </div>
+
+                    <div class="w-full lg:w-2/3 flex flex-col justify-between h-[520px] bg-slate-900">
+                        <div class="bg-slate-800 px-6 py-3 border-b border-slate-700 flex justify-between items-center">
+                            <div class="flex items-center space-x-2 text-xs text-slate-300">
+                                <i class="fa-solid fa-comments text-indigo-400"></i>
+                                <span>Responde en inglés evaluando tu gramática y comprensión (${currentCfg.level})</span>
+                            </div>
+                            <div class="text-xs bg-indigo-600/30 border border-indigo-500/40 px-3 py-1 rounded-lg text-indigo-200">
+                                Pregunta (<span id="turn-count">1</span>/3)
+                            </div>
+                        </div>
+
+                        <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-4 bg-slate-900/90">
+                        </div>
+
+                        <div id="feedback-panel" class="hidden bg-indigo-950/90 border-t border-indigo-800 p-4 text-xs text-indigo-200">
+                            <div class="font-bold text-indigo-300 mb-1 flex items-center space-x-1">
+                                <i class="fa-solid fa-lightbulb text-amber-400"></i>
+                                <span>Retroalimentación Pedagógica MCER (${currentCfg.level}):</span>
+                            </div>
+                            <p id="feedback-text" class="leading-relaxed"></p>
+                        </div>
+
+                        <div class="bg-slate-800 p-3 border-t border-slate-700 flex items-center space-x-2">
+                            <input type="text" id="user-input" placeholder="Escribe tu respuesta en inglés aquí..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition" onkeypress="handleKeyPress(event)">
+                            <button id="send-btn" onclick="sendUserMessage()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-3 rounded-xl font-medium transition flex items-center space-x-2 text-sm shadow-lg">
+                                <span>Enviar</span>
+                                <i class="fa-solid fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function initInterviewChat() {
+            let initialGreeting = "";
+            if (gameState.jobLevel === 1) {
+                initialGreeting = "Hello and welcome! Let's start with a simple question for this Junior Assistant position. Can you tell me your name, age, and where you are from in English?";
+            } else if (gameState.jobLevel === 2) {
+                initialGreeting = "Welcome back! For this Customer Support role (A2), please describe your previous work experience and what skills you have for customer service.";
+            } else if (gameState.jobLevel === 3) {
+                initialGreeting = "Good afternoon. We are interviewing for Project Coordinator (B1). Can you describe a complex project you managed and how you handled team conflicts?";
+            } else {
+                initialGreeting = "Welcome to the final executive interview for Senior Operations Manager (B2). Please elaborate on your strategic leadership philosophy and how you drive business growth.";
+            }
+
+            gameState.interviewHistory.push({ role: 'model', parts: [{ text: initialGreeting }] });
+            appendChatMessage('Manager', initialGreeting, 'model');
+        }
+
+        function appendChatMessage(sender, text, role) {
+            const chatContainer = document.getElementById('chat-messages');
+            if (!chatContainer) return;
+
+            const isUser = role === 'user';
+            const bubbleDiv = document.createElement('div');
+            bubbleDiv.className = `flex ${isUser ? 'justify-end' : 'justify-start'} fade-in`;
+            
+            bubbleDiv.innerHTML = `
+                <div class="max-w-[85%] rounded-2xl px-4 py-3 text-sm ${isUser ? 'bg-indigo-600 text-white rounded-br-none shadow-md' : 'bg-slate-800 border border-slate-700 text-slate-200 rounded-bl-none'}">
+                    <p class="text-[10px] font-bold uppercase tracking-wider mb-1 opacity-70">${sender}</p>
+                    <p class="leading-relaxed whitespace-pre-wrap">${text}</p>
+                </div>
+            `;
+            chatContainer.appendChild(bubbleDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        async function sendUserMessage() {
+            const inputEl = document.getElementById('user-input');
+            const text = inputEl.value.trim();
+            if (!text || gameState.isEvaluating) return;
+
+            inputEl.value = '';
+            appendChatMessage('Tú', text, 'user');
+            gameState.interviewHistory.push({ role: 'user', parts: [{ text: text }] });
+            gameState.interviewTurns++;
+            
+            const turnEl = document.getElementById('turn-count');
+            if (turnEl) turnEl.innerText = Math.min(gameState.interviewTurns, 3);
+
+            await evaluateInterviewTurn(text);
+        }
+
+        function handleKeyPress(e) {
+            if (e.key === 'Enter') {
+                sendUserMessage();
+            }
+        }
+
+        async function evaluateInterviewTurn(userText) {
+            gameState.isEvaluating = true;
+            const sendBtn = document.getElementById('send-btn');
+            if (sendBtn) {
+                sendBtn.disabled = true;
+                sendBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+            }
+
+            const currentCfg = jobLevelsConfig[gameState.jobLevel];
+            const systemPrompt = `Eres un entrevistador de recursos humanos evaluando en nivel MCER ${currentCfg.level}.
+Evalúa la respuesta en inglés dada por el candidato. Verifica gramática, comprensión de la pregunta y precisión léxica.
+Responde estrictamente en formato JSON válido:
+{
+    "reply": "Respuesta del entrevistador en inglés haciendo la siguiente pregunta o cerrando la entrevista",
+    "passed": true o false,
+    "interviewEnded": true o false,
+    "feedback": "Retroalimentación en español señalando aciertos gramaticales, errores y consejos según el nivel ${currentCfg.level}."
+}`;
+
+            const payload = {
+                contents: gameState.interviewHistory,
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        properties: {
+                            "reply": { "type": "STRING" },
+                            "passed": { "type": "BOOLEAN" },
+                            "interviewEnded": { "type": "BOOLEAN" },
+                            "feedback": { "type": "STRING" }
+                        },
+                        "propertyOrdering": ["reply", "passed", "interviewEnded", "feedback"]
+                    }
+                }
+            };
+
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=`;
+
+            let success = false;
+            let resultData = null;
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+                const candidate = data.candidates?.[0];
+                if (candidate && candidate.content?.parts?.[0]?.text) {
+                    resultData = JSON.parse(candidate.content.parts[0].text);
+                    success = true;
+                }
+            } catch (err) {
+                success = false;
+            }
+
+            // Fallback to offline local evaluation if API is unavailable
+            if (!success || !resultData) {
+                resultData = evaluateLocalTurn(userText, gameState.interviewTurns, currentCfg.level);
+            }
+
+            gameState.isEvaluating = false;
+            if (sendBtn) {
+                sendBtn.disabled = false;
+                sendBtn.innerHTML = '<span>Enviar</span> <i class="fa-solid fa-paper-plane"></i>';
+            }
+
+            gameState.interviewHistory.push({ role: 'model', parts: [{ text: resultData.reply }] });
+            appendChatMessage('Manager', resultData.reply, 'model');
+
+            if (resultData.feedback) {
+                const feedbackPanel = document.getElementById('feedback-panel');
+                const feedbackText = document.getElementById('feedback-text');
+                if (feedbackPanel && feedbackText) {
+                    feedbackText.innerText = resultData.feedback;
+                    feedbackPanel.classList.remove('hidden');
+                }
+            }
+
+            if (resultData.interviewEnded || gameState.interviewTurns >= 3) {
+                setTimeout(() => {
+                    handleInterviewResult(resultData.passed);
+                }, 2000);
+            }
+        }
+
+        function handleInterviewResult(passed) {
+            if (passed) {
+                if (gameState.jobLevel === 4) {
+                    gameState.scene = 'victory';
+                    renderScene();
+                } else {
+                    showModal("¡Obtuviste el Trabajo! 🎉", `¡Felicitaciones! Has sido contratado como ${jobLevelsConfig[gameState.jobLevel].title}. Ahora pasarás a tu nuevo entorno de trabajo para conocer a tu equipo y repasar vocabulario clave.`, 'success');
+                    gameState.scene = 'scene4_workplace';
+                    gameState.hasPracticedVocab = false;
+                    renderScene();
+                }
+            } else {
+                gameState.monthsInCurrentJob++;
+                if (gameState.monthsInCurrentJob >= 3) {
+                    gameState.scene = 'game_over';
+                    renderScene();
+                    return;
+                }
+                showModal("No Obtuviste el Cargo ❌", `No lograste pasar la entrevista en esta ocasión. Revisa el feedback pedagógico para estudiar. Pasa 1 mes más. Llevas ${gameState.monthsInCurrentJob}/3 meses sin ascender.`, 'error');
+                gameState.scene = 'scene2_apartment';
+                renderScene();
+            }
+        }
+
+        // --- NEW SCENE 4: WORKPLACE ONBOARDING & VOCABULARY STUDY HUB ---
+        function renderScene4HTML() {
+            const currentCfg = jobLevelsConfig[gameState.jobLevel];
+            const nextCfg = jobLevelsConfig[gameState.jobLevel + 1];
+
+            return `
+                <div class="flex-1 flex flex-col bg-slate-900 rounded-2xl overflow-hidden border border-slate-700">
+                    <!-- Top Bar with Study Status and Promotion Button -->
+                    <div class="bg-slate-800 p-4 border-b border-slate-700 flex flex-wrap justify-between items-center gap-3">
+                        <div class="flex items-center space-x-3">
+                            <div class="p-2 bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 rounded-xl">
+                                <i class="fa-solid fa-building text-lg"></i>
+                            </div>
+                            <div>
+                                <h2 class="font-bold text-white text-base">Oficina de Trabajo - ${currentCfg.title}</h2>
+                                <p class="text-xs text-slate-400">Puesto actual conseguido • Nivel ${currentCfg.level}</p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <button id="promo-btn" onclick="triggerNextInterviewProcess()" 
+                                class="${gameState.hasPracticedVocab ? 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg cursor-pointer' : 'bg-slate-700 text-slate-400 cursor-not-allowed'} px-5 py-2.5 rounded-xl text-xs font-bold transition flex items-center space-x-2">
+                                <i class="fa-solid fa-briefcase"></i>
+                                <span>Buscar Nuevo Cargo (Postular a ${nextCfg ? nextCfg.level : 'B2'})</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 p-6 overflow-y-auto">
+                        <!-- Left Panel: Team Intro Chat -->
+                        <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 flex flex-col justify-between">
+                            <div>
+                                <h3 class="font-bold text-indigo-400 text-sm mb-3 flex items-center space-x-2">
+                                    <i class="fa-solid fa-users"></i>
+                                    <span>Presentación al Equipo de Trabajo</span>
+                                </h3>
+                                <div id="team-chat" class="space-y-3 text-xs bg-slate-900 p-4 rounded-xl border border-slate-800 h-52 overflow-y-auto">
+                                    <div class="bg-slate-800 p-2.5 rounded-lg border border-slate-700">
+                                        <span class="font-bold text-emerald-400">Team Leader Sarah:</span> "Welcome to the team! We are so glad to have you as our new ${currentCfg.title}. Please introduce yourself!"
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-4 flex space-x-2">
+                                <input type="text" id="team-input" placeholder="Presentate en inglés (ej: Hello! My name is...)" class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                                <button onclick="sendTeamIntro()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-semibold">
+                                    Enviar
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Right Panel: Vocabulary Study Hub -->
+                        <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 flex flex-col justify-between">
+                            <div>
+                                <h3 class="font-bold text-amber-400 text-sm mb-2 flex items-center space-x-2">
+                                    <i class="fa-solid fa-book-open"></i>
+                                    <span>Módulo de Práctica e Idioma (Repaso A1)</span>
+                                </h3>
+                                <p class="text-xs text-slate-400 mb-4">Practica este vocabulario para habilitar tu siguiente entrevista de ascenso:</p>
+
+                                <div class="grid grid-cols-2 gap-2 text-xs">
+                                    <div class="bg-slate-900 p-2.5 rounded-xl border border-slate-800">
+                                        <p class="font-bold text-indigo-300"><i class="fa-solid fa-shirt mr-1"></i> Clothes</p>
+                                        <p class="text-slate-400 text-[11px]">Suit, Shirt, Tie, Shoes</p>
+                                    </div>
+                                    <div class="bg-slate-900 p-2.5 rounded-xl border border-slate-800">
+                                        <p class="font-bold text-indigo-300"><i class="fa-solid fa-utensils mr-1"></i> Food & Drinks</p>
+                                        <p class="text-slate-400 text-[11px]">Coffee, Water, Lunch, Snack</p>
+                                    </div>
+                                    <div class="bg-slate-900 p-2.5 rounded-xl border border-slate-800">
+                                        <p class="font-bold text-indigo-300"><i class="fa-solid fa-desktop mr-1"></i> Objects</p>
+                                        <p class="text-slate-400 text-[11px]">Laptop, Desk, Phone, Report</p>
+                                    </div>
+                                    <div class="bg-slate-900 p-2.5 rounded-xl border border-slate-800">
+                                        <p class="font-bold text-indigo-300"><i class="fa-solid fa-comments mr-1"></i> Expressions</p>
+                                        <p class="text-slate-400 text-[11px]">Nice to meet you, Good job</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-4 pt-3 border-t border-slate-800">
+                                <button onclick="completeVocabPractice()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 px-4 rounded-xl text-xs transition flex items-center justify-center space-x-2">
+                                    <i class="fa-solid fa-check-double"></i>
+                                    <span>Completar Práctica y Habilitar Postulación</span>
+                                </button>
